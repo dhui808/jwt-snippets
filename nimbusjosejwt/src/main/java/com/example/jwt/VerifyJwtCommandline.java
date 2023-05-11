@@ -65,6 +65,8 @@ public class VerifyJwtCommandline implements CommandLineRunner {
 
 		String serializedJWT = signedJWT.serialize();
 
+		System.out.println("serializedJWT = " + serializedJWT);
+		
 		SignedJWT signedJWT1 = SignedJWT.parse(serializedJWT);
 		String serializedJWT1 = signedJWT1.serialize();
 		System.out.println("serializedJWT.equals(serializedJWT1)?" + serializedJWT.equals(serializedJWT1));
