@@ -1,10 +1,5 @@
 package com.example.jwt;
 
-import java.net.URI;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
-import java.security.interfaces.RSAPrivateKey;
-import java.security.interfaces.RSAPublicKey;
 import java.util.Date;
 
 import org.springframework.boot.CommandLineRunner;
@@ -14,24 +9,28 @@ import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
 import com.nimbusds.jose.JWSSigner;
 import com.nimbusds.jose.JWSVerifier;
-import com.nimbusds.jose.crypto.RSASSASigner;
-import com.nimbusds.jose.crypto.RSASSAVerifier;
-import com.nimbusds.jose.util.Base64URL;
+import com.nimbusds.jose.crypto.Ed25519Signer;
+import com.nimbusds.jose.crypto.Ed25519Verifier;
+import com.nimbusds.jose.jwk.Curve;
+import com.nimbusds.jose.jwk.OctetKeyPair;
+import com.nimbusds.jose.jwk.gen.OctetKeyPairGenerator;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 
 @Component
-public class VerifyJwtSignature implements CommandLineRunner {
+public class VerifyJwtEd25519Signature implements CommandLineRunner {
 
 	@Override
 	public void run(String... args) throws Exception {
 		
-		KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA");
-		kpg.initialize(2048);
+		// Generate a key pair with Ed25519 curve
+		OctetKeyPair jwk = new OctetKeyPairGenerator(Curve.Ed25519)
+		    .keyID("123")
+		    .generate();
+		OctetKeyPair publicJWK = jwk.toPublicJWK();
 
-		KeyPair kp = kpg.genKeyPair();
-		RSAPublicKey publicKey = (RSAPublicKey)kp.getPublic();
-		RSAPrivateKey privateKey = (RSAPrivateKey)kp.getPrivate();
+		// Create the EdDSA signer
+		JWSSigner signer = new Ed25519Signer(jwk);
 
 		JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
 			.subject("jose")
@@ -40,12 +39,9 @@ public class VerifyJwtSignature implements CommandLineRunner {
 			.claim("scope", "openid")
 			.build();
 
-		JWSHeader header = new JWSHeader.Builder(JWSAlgorithm.RS256).
-			keyID("1").
-			jwkURL(new URI("https://www.example.com/jwks.json")).
-			build();
-
-		SignedJWT signedJWT = new SignedJWT(header, claimsSet);
+		SignedJWT signedJWT = new SignedJWT(
+			    new JWSHeader.Builder(JWSAlgorithm.EdDSA).keyID(jwk.getKeyID()).build(),
+			    claimsSet);
 
 		System.out.println("signedJWT.getState() = " + signedJWT.getState());
 		System.out.println("signedJWT.getHeader() = " + signedJWT.getHeader());
@@ -55,28 +51,23 @@ public class VerifyJwtSignature implements CommandLineRunner {
 		System.out.println("signedJWT.getJWTClaimsSet().getStringClaim(\"scope\") = " + signedJWT.getJWTClaimsSet().getStringClaim("scope"));
 		System.out.println("signedJWT.getSignature() = " + signedJWT.getSignature());
 
-		Base64URL sigInput = Base64URL.encode(signedJWT.getSigningInput());
-
-		JWSSigner signer = new RSASSASigner(privateKey);
-
+		// Compute the EC signature
 		signedJWT.sign(signer);
 
 		System.out.println("signedJWT.getState() = " + signedJWT.getState());
 
+		// Serialize the JWS to compact form
 		String serializedJWT = signedJWT.serialize();
-
 		System.out.println("serializedJWT = " + serializedJWT);
 		
+		// On the consumer side, parse the JWS and verify its EdDSA signature
 		SignedJWT signedJWT1 = SignedJWT.parse(serializedJWT);
 		String serializedJWT1 = signedJWT1.serialize();
 		System.out.println("serializedJWT.equals(serializedJWT1)?" + serializedJWT.equals(serializedJWT1));
 		System.out.println("signedJWT1.getParsedString() = " + signedJWT1.getParsedString());
 
-		System.out.println(sigInput.equals(Base64URL.encode(signedJWT.getSigningInput())));
-
-		JWSVerifier verifier = new RSASSAVerifier(publicKey);
+		JWSVerifier verifier = new Ed25519Verifier(publicJWK);
 		System.out.println("signedJWT.verify(verifier) = " + signedJWT.verify(verifier));
-		
 	}
 
 }
