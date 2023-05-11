@@ -34,15 +34,15 @@ public class VerifyJwtCommandline implements CommandLineRunner {
 		RSAPrivateKey privateKey = (RSAPrivateKey)kp.getPrivate();
 
 		JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
-			.subject("alice")
-			.issueTime(new Date(123000L))
-			.issuer("https://c2id.com")
+			.subject("jose")
+			.issueTime(new Date(123456L))
+			.issuer("https://www.example.com")
 			.claim("scope", "openid")
 			.build();
 
 		JWSHeader header = new JWSHeader.Builder(JWSAlgorithm.RS256).
 			keyID("1").
-			jwkURL(new URI("https://c2id.com/jwks.json")).
+			jwkURL(new URI("https://www.example.com/jwks.json")).
 			build();
 
 		SignedJWT signedJWT = new SignedJWT(header, claimsSet);
