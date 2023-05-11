@@ -1,0 +1,10 @@
+**/target/
+**/jee-*/
+**/eclipse-*/
+**/.settings/
+**/local/
+**/.gradle/
+**/bin/
+**/build/
+**/*.pptx
+**/application-prod.properties
