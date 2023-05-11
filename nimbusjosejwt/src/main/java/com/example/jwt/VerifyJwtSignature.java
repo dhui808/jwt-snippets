@@ -21,7 +21,7 @@ import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 
 @Component
-public class VerifyJwtCommandline implements CommandLineRunner {
+public class VerifyJwtSignature implements CommandLineRunner {
 
 	@Override
 	public void run(String... args) throws Exception {
