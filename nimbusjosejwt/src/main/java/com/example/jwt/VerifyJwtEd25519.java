@@ -51,7 +51,7 @@ public class VerifyJwtEd25519 implements CommandLineRunner {
 		System.out.println("signedJWT.getJWTClaimsSet().getStringClaim(\"scope\") = " + signedJWT.getJWTClaimsSet().getStringClaim("scope"));
 		System.out.println("signedJWT.getSignature() = " + signedJWT.getSignature());
 
-		// Compute the EC signature
+		// Compute the Ed25519 signature
 		signedJWT.sign(signer);
 
 		System.out.println("signedJWT.getState() = " + signedJWT.getState());
