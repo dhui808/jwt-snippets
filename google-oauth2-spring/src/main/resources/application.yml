@@ -1,0 +1,5 @@
+oauth:
+  clientId: 340013476510-hipp5qkvbm63iqvf49nnrencrqsvjvtp.apps.googleusercontent.com
+  clientSecret: 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>
+  checkTokenUrl: https://www.googleapis.com/oauth2/v3/tokeninfo?access_token={accessToken}
+  userInfoUrl: https://www.googleapis.com/userinfo/v2/me
