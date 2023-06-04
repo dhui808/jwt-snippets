@@ -1,0 +1,18 @@
+version: '3.3' # specify docker-compose version
+
+services:
+
+  postgres:
+    image: postgres
+    ports:
+      - "5432:5432"
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: authorization-server
+      POSTGRES_USER: postgres
+    volumes:
+      - /opt/spring-boot-oauth/data/postgresql:/var/lib/postgresql
+
+  
+    
